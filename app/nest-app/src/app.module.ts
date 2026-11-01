@@ -3,6 +3,8 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { UsersModule } from './users/users.module.js';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { RemoteServersModule } from './remote-servers/remote-servers.module.js';
+import { AuthModule } from './auth/auth.module.js';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    RemoteServersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
