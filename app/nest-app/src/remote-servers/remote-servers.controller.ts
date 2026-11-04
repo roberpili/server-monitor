@@ -10,8 +10,8 @@ import {
 import { RemoteServersService } from './remote-servers.service.js';
 import { CreateRemoteServerDto } from './dto/create-remote-server.dto.js';
 import { UpdateRemoteServerDto } from './dto/update-remote-server.dto.js';
-import { CurrentUser } from '../auth/current-user.decorator.js';
-import type { ICurrentUser } from '../auth/current-user.interface.js';
+import type { ICurrentUser } from '@/auth/current-user.interface.js';
+import { CurrentUser } from '@/auth/current-user.decorator.js';
 
 @Controller('remote-servers')
 export class RemoteServersController {
@@ -22,7 +22,6 @@ export class RemoteServersController {
     @Body() createRemoteServerDto: CreateRemoteServerDto,
     @CurrentUser() currentUser: ICurrentUser,
   ) {
-    console.log(currentUser);
     return this.remoteServersService.create(
       createRemoteServerDto,
       currentUser.id,

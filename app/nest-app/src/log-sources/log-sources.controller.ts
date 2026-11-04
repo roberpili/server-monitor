@@ -9,9 +9,9 @@ import {
 } from '@nestjs/common';
 import { LogSourcesService } from './log-sources.service.js';
 import { CreateLogSourceDto } from './dto/create-log-source.dto.js';
+import type { ICurrentUser } from '@/auth/current-user.interface.js';
+import { CurrentUser } from '@/auth/current-user.decorator.js';
 import { UpdateLogSourceDto } from './dto/update-log-source.dto.js';
-import { CurrentUser } from '../auth/current-user.decorator.js';
-import type { ICurrentUser } from '../auth/current-user.interface.js';
 
 @Controller('log-sources')
 export class LogSourcesController {
