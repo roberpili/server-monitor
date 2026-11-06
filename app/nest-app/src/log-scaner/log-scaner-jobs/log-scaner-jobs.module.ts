@@ -5,10 +5,11 @@ import { LogScanerJobsController } from './log-scaner-jobs.controller.js';
 import { LogScanerJobsService } from './log-scaner-jobs.service.js';
 import { LogSourcesModule } from '../../log-sources/log-sources.module.js';
 import { RemoteServersModule } from '../../remote-servers/remote-servers.module.js';
+import { Anomaly } from './entities/anomaly.entity.js';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([LogScanerJob]),
+    TypeOrmModule.forFeature([LogScanerJob, Anomaly]),
     LogSourcesModule,
     RemoteServersModule,
     LogScanerJobsModule,
