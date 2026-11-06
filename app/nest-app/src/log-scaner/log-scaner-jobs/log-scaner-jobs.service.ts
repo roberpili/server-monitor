@@ -24,20 +24,24 @@ export class LogScanerJobsService {
   ) {}
 
   async create(props: CreateLogScanerJobDto, ownerId: string) {
-    const logSource = await this.logSourceService.getById(
-      props.logSourceId,
-      ownerId,
-    );
-    const remoteServer = await this.remoteServerService.getById(
+    const remoteServer = await this.remoteServerService.findOne(
       props.remoteServerId,
       ownerId,
     );
+
+    if (!remoteServer) {
+      throw new BadRequestException('remote server not found');
+    }
+
+    const logSource = props.logSourceId
+      ? await this.logSourceService.findOne(props.logSourceId, ownerId)
+      : null;
 
     const logScanerJob = this.repo.create({
       ...props,
       ownerId,
       status: LogScanerStatus.INITIALIZED,
-      logSource,
+      logSource: logSource ?? undefined,
       remoteServer,
     });
 

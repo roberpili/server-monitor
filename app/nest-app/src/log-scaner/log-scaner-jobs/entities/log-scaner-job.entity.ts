@@ -51,9 +51,9 @@ export class LogScanerJob {
   updatedAt: Date;
 
   // relations
-  @OneToOne(() => LogSource)
+  @OneToOne(() => LogSource, { nullable: true })
   @JoinColumn()
-  logSource: LogSource;
+  logSource?: LogSource;
 
   @OneToOne(() => RemoteServer)
   @JoinColumn()

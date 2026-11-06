@@ -5,12 +5,14 @@ import { LogScanerJobsService } from './log-scaner-jobs.service.js';
 import {
   LogScanerJob,
   LogScanerStatus,
+  LogScanerType,
 } from './entities/log-scaner-job.entity.js';
 
 import { Mocked } from 'vitest';
 import { Repository } from 'typeorm';
 import { LogSourcesService } from '@/log-sources/log-sources.service.js';
 import { RemoteServersService } from '@/remote-servers/remote-servers.service.js';
+import { CreateLogScanerJobDto } from './dto/create-log-scaner-job.dto.js';
 
 describe('LogScanerJobsService', () => {
   let service: LogScanerJobsService;
@@ -35,13 +37,13 @@ describe('LogScanerJobsService', () => {
         {
           provide: LogSourcesService,
           useValue: {
-            getById: vitest.fn(),
+            findOne: vitest.fn(),
           },
         },
         {
           provide: RemoteServersService,
           useValue: {
-            getById: vitest.fn(),
+            findOne: vitest.fn(),
           },
         },
       ],
@@ -61,45 +63,64 @@ describe('LogScanerJobsService', () => {
   });
 
   it('should create a log scaner job', async () => {
-    const props = {
+    const createDto: CreateLogScanerJobDto = {
+      name: 'test',
+      type: LogScanerType.ONE_TIME,
       logSourceId: 'log-source-1',
       remoteServerId: 'remote-server-1',
-    } as any;
-    const logSource = {} as any;
-    const remoteServer = {} as any;
+    };
     const createdJob = {} as any;
     const savedJob = {} as any;
-
-    logSourceService.getById.mockResolvedValue(logSource);
-    remoteServerService.getById.mockResolvedValue(remoteServer);
     repo.create.mockReturnValue(createdJob);
     repo.save.mockResolvedValue(savedJob);
 
+    logSourceService.findOne.mockResolvedValue('log-source' as any);
+    remoteServerService.findOne.mockResolvedValue('remote-server' as any);
+
     // act
-    const result = await service.create(props, 'owner-1');
+    const result = await service.create(createDto, 'owner-1');
 
     // assert
-    expect(logSourceService.getById).toHaveBeenCalledTimes(1);
-    expect(logSourceService.getById).toHaveBeenCalledWith(
+    expect(logSourceService.findOne).toHaveBeenCalledTimes(1);
+    expect(logSourceService.findOne).toHaveBeenCalledWith(
       'log-source-1',
       'owner-1',
     );
-    expect(remoteServerService.getById).toHaveBeenCalledTimes(1);
-    expect(remoteServerService.getById).toHaveBeenCalledWith(
+    expect(remoteServerService.findOne).toHaveBeenCalledTimes(1);
+    expect(remoteServerService.findOne).toHaveBeenCalledWith(
       'remote-server-1',
       'owner-1',
     );
     expect(repo.create).toHaveBeenCalledTimes(1);
     expect(repo.create).toHaveBeenCalledWith({
-      ...props,
+      ...createDto,
       ownerId: 'owner-1',
       status: LogScanerStatus.INITIALIZED,
-      logSource,
-      remoteServer,
+      logSource: 'log-source' as any,
+      remoteServer: 'remote-server' as any,
     });
     expect(repo.save).toHaveBeenCalledTimes(1);
     expect(repo.save).toHaveBeenCalledWith(createdJob);
     expect(result).toEqual(savedJob);
+  });
+
+  it('should not throw error if log source not provided', async () => {
+    const createDto: CreateLogScanerJobDto = {
+      name: 'test',
+      type: LogScanerType.ONE_TIME,
+      remoteServerId: 'remote-server-1',
+    };
+
+    const createdJob = {} as any;
+    const savedJob = {} as any;
+
+    repo.create.mockReturnValue(createdJob);
+    repo.save.mockResolvedValue(savedJob);
+
+    remoteServerService.findOne.mockResolvedValue('remote-server' as any);
+    await service.create(createDto, 'owner-1');
+
+    expect(logSourceService.findOne).toHaveBeenCalledTimes(0);
   });
 
   it('should return all log scaner jobs for an owner', async () => {
