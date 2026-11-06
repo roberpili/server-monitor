@@ -1,4 +1,4 @@
 packages:
   - "app/*"
 allowBuilds:
-  '@scarf/scarf': set this to true or false
+  '@scarf/scarf': false
