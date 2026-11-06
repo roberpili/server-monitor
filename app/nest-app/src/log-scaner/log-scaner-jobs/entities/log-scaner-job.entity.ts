@@ -44,6 +44,9 @@ export class LogScanerJob {
   @Column()
   type: LogScanerType;
 
+  @Column({ nullable: true, type: 'simple-json' })
+  ticketSystemConfig?: Record<string, any>;
+
   @CreateDateColumn()
   createdAt: Date;
 

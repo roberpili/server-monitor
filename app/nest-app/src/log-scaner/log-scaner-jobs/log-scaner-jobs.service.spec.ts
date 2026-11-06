@@ -66,6 +66,10 @@ describe('LogScanerJobsService', () => {
     const createDto: CreateLogScanerJobDto = {
       name: 'test',
       type: LogScanerType.ONE_TIME,
+      description: 'test description',
+      ticketSystemConfig: {
+        ticketId: '123',
+      },
       logSourceId: 'log-source-1',
       remoteServerId: 'remote-server-1',
     };

@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsObject, IsOptional, IsString } from 'class-validator';
 import { LogScanerType } from '../entities/log-scaner-job.entity.js';
 
 export class CreateLogScanerJobDto {
@@ -18,4 +18,8 @@ export class CreateLogScanerJobDto {
 
   @IsString()
   remoteServerId: string;
+
+  @IsObject()
+  @IsOptional()
+  ticketSystemConfig?: Record<string, any>;
 }
