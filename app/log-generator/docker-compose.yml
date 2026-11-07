@@ -1,17 +1,28 @@
 services:
-  log-generator:
+  dummy-log-generator:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: log-generator
+    container_name: dummy-log-generator
     ports:
       - "3001:3001"
     environment:
+      # Node.js app configuration
       - PORT=3001
       - NODE_ENV=production
+
+      # Fluent Bit HTTP output configuration
+      - HTTP_OUTPUT_HOST=host.docker.internal
+      - HTTP_OUTPUT_PORT=3000
+      - HTTP_OUTPUT_URI=/log-scaner/ingest/123
+      - HTTP_OUTPUT_TLS=Off
+      - HTTP_OUTPUT_TLS_VERIFY=Off
     volumes:
+      # Mount logs directory to persist logs (optional)
       - ./logs:/app/logs
     restart: unless-stopped
+    networks:
+      - log-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001/status"]
       interval: 30s
@@ -19,34 +30,6 @@ services:
       retries: 3
       start_period: 10s
 
-  fluent-bit:
-    build:
-      context: .
-      dockerfile: Dockerfile.fluentbit
-    container_name: fluent-bit
-    ports:
-      - "2020:2020"
-    environment:
-      - FLUENT_BIT_OUTPUT_HOST=${FLUENT_BIT_OUTPUT_HOST:-log-aggregator}
-      - FLUENT_BIT_OUTPUT_PORT=${FLUENT_BIT_OUTPUT_PORT:-80}
-      - FLUENT_BIT_OUTPUT_URI=${FLUENT_BIT_OUTPUT_URI:-/api/logs}
-      - FLUENT_BIT_OUTPUT_TOKEN=${FLUENT_BIT_OUTPUT_TOKEN:-}
-    volumes:
-      - ./logs:/app/logs:ro
-    restart: unless-stopped
-    depends_on:
-      - log-generator
-
-  # Example log aggregator service (replace with your actual endpoint)
-  log-aggregator:
-    image: nginx:alpine
-    container_name: log-aggregator
-    ports:
-      - "8080:80"
-    volumes:
-      - ./nginx-log-collector.conf:/etc/nginx/conf.d/default.conf:ro
-    restart: unless-stopped
-
 networks:
-  default:
-    name: log-generator-network
+  log-network:
+    driver: bridge
