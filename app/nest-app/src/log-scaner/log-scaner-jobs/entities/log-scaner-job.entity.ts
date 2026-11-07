@@ -11,6 +11,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { Anomaly } from './anomaly.entity.js';
 
 export enum LogScanerStatus {
@@ -65,5 +66,5 @@ export class LogScanerJob {
   remoteServer: RemoteServer;
 
   @OneToMany(() => Anomaly, (anomaly) => anomaly.logScanerJob)
-  anomalies: Anomaly[];
+  anomalies: Relation<Anomaly[]>;
 }

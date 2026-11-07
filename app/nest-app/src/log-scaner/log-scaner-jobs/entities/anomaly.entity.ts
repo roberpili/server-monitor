@@ -6,6 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { LogScanerJob } from './log-scaner-job.entity.js';
 
 export enum AnomalySeverity {
@@ -35,5 +36,5 @@ export class Anomaly {
   @ManyToOne(() => LogScanerJob, (logScanerJob) => logScanerJob.anomalies, {
     onDelete: 'CASCADE',
   })
-  logScanerJob: LogScanerJob;
+  logScanerJob: Relation<LogScanerJob>;
 }
