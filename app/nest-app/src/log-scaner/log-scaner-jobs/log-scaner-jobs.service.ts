@@ -8,11 +8,16 @@ import {
   LogScanerJob,
   LogScanerStatus,
 } from './entities/log-scaner-job.entity.js';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateLogScanerJobDto } from './dto/create-log-scaner-job.dto.js';
 import { UpdateLogScanerJobDto } from './dto/update-log-scaner-job.dto.js';
 import { RemoteServersService } from '@/remote-servers/remote-servers.service.js';
 import { LogSourcesService } from '@/log-sources/log-sources.service.js';
+import {
+  Anomaly,
+  AnomalySeverity,
+  AnomalyStatus,
+} from './entities/anomaly.entity.js';
 
 @Injectable()
 export class LogScanerJobsService {
@@ -21,6 +26,7 @@ export class LogScanerJobsService {
     private repo: Repository<LogScanerJob>,
     private logSourceService: LogSourcesService,
     private remoteServerService: RemoteServersService,
+    private anomalyRepo: Repository<Anomaly>,
   ) {}
 
   async create(props: CreateLogScanerJobDto, ownerId: string) {
@@ -76,5 +82,35 @@ export class LogScanerJobsService {
 
   remove(id: string, ownerId: string) {
     return this.repo.delete({ id, ownerId });
+  }
+
+  async addAnomaly(
+    job: LogScanerJob,
+    {
+      title,
+      description,
+      severity,
+    }: { title: string; description?: string; severity: AnomalySeverity },
+  ) {
+    const existingAnomaly = await this.anomalyRepo.findOne({
+      where: {
+        logScanerJob: { id: job.id },
+        status: In([AnomalyStatus.OPEN, AnomalyStatus.IN_PROGRESS]),
+      },
+    });
+
+    if (existingAnomaly) {
+      return;
+    }
+
+    const anomaly = this.anomalyRepo.create({
+      logScanerJob: job,
+      status: AnomalyStatus.OPEN,
+      title,
+      description,
+      severity,
+    });
+
+    await this.anomalyRepo.save(anomaly);
   }
 }

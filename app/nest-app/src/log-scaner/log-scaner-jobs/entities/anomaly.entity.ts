@@ -16,10 +16,19 @@ export enum AnomalySeverity {
   CRITICAL = 'critical',
 }
 
+export enum AnomalyStatus {
+  OPEN = 'open',
+  CLOSED = 'closed',
+  IN_PROGRESS = 'in_progress',
+}
+
 @Entity()
 export class Anomaly {
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column()
+  status: AnomalyStatus;
 
   @Column()
   title: string;
